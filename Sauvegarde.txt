@@ -1,0 +1,10 @@
+1
+a;b;c
+1
+paris;marseille;auto
+1
+a;c;d
+2
+Lyon;Toulon;velo
+Toulon;Créteil;pied
+
