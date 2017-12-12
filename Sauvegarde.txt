@@ -1,10 +1,5 @@
-1
-a;b;c
-1
-paris;marseille;auto
-1
-a;c;d
-2
-Lyon;Toulon;velo
-Toulon;Créteil;pied
-
+2         
+1;a;zeof
+a;zeof;zgon
+1;ba;ozaefz
+ba;ozaefz;zogn

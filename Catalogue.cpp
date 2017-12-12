@@ -222,10 +222,10 @@ void Catalogue::Run()
 		case 5:
 			return;
 		case 6:
-			EnregistrerCatalogue(TOUS);
+			EnregistrerCatalogue("Sauvegarde.txt","a","");
 			break;
 		case 7:
-			importer("Sauvegarde.txt", TC);
+			importer("Sauvegarde.txt", "a");
 			break;
 		}
 	}
@@ -360,35 +360,107 @@ void Catalogue::RechercheAvancee(const char*villeDep, const char*villeArr) const
 
 }
 
-void Catalogue::EnregistrerCatalogue(TypeTrajet type)
+void Catalogue::EnregistrerCatalogue(string nomFichier, TypeTrajet type)
 {
-	ofstream flux("Sauvegarde.txt", ios::app);
+	ofstream flux(nomFichier, ios::out);
+	flux<<"          "<<endl;
+	unsigned int nbTrajetsAjoutes = 0;
 	for(Element *elem = listeTrajets.Tete;elem!=NULL;elem=elem->suivant)
 	{
 		if(elem->type==type || type==TOUS)
 		{	
-		
 			elem->trajet->Sauvegarder(flux);
+			nbTrajetsAjoutes++;
 		}
 	}
+	flux.seekp(ios::beg);
+	flux<<nbTrajetsAjoutes;
 	flux.close();
 }
 
+
+void Catalogue::EnregistrerCatalogue(string nomFichier, string villeDep, string villeArr)
+{
+	ofstream flux(nomFichier, ios::out);
+	flux<<"          "<<endl;
+	unsigned int nbTrajetsAjoutes = 0;
+	for(Element *elem = listeTrajets.Tete;elem!=NULL;elem=elem->suivant)
+	{
+		int villeDepEgale = strcmp(villeDep.c_str(),elem->trajet->getVilleDepart());
+		int villeArrEgale = strcmp(villeArr.c_str(),elem->trajet->getVilleArrivee());
+		
+		if(villeDep=="" && villeDep=="")
+		{
+				elem->trajet->Sauvegarder(flux);
+				nbTrajetsAjoutes++;
+		}
+		else if(villeDepEgale ==0 && villeArr=="")
+		{
+				elem->trajet->Sauvegarder(flux);
+				nbTrajetsAjoutes++;
+		}
+		else if(villeArrEgale==0 && villeDep=="")
+		{
+				elem->trajet->Sauvegarder(flux);
+				nbTrajetsAjoutes++;
+		}
+		else if(villeArrEgale==0 && villeDepEgale==0)
+		{
+				elem->trajet->Sauvegarder(flux);
+				nbTrajetsAjoutes++;
+		}
+	}
+	flux.seekp(ios_base::beg);
+	flux<<nbTrajetsAjoutes;
+	flux.close();
+}
+
+void Catalogue::EnregistrerCatalogue(string nomFichier, unsigned int deb, unsigned int fin)
+{
+	if(!(fin>deb&&fin<nbTrajets))
+	{
+		cout<<"Erreur d'intervalle"<<endl;
+		return;
+	}
+	
+	ofstream flux(nomFichier, ios::out);
+	flux<<"          "<<endl;
+	unsigned int nbTrajetsAjoutes = 0;
+	unsigned int compteur=0;
+	for(Element *elem = listeTrajets.Tete;compteur!=deb;elem=elem->suivant,compteur++);
+	for(Element *elem = listeTrajets.Tete;compteur!=fin;elem=elem->suivant,compteur++)
+	{
+		elem->trajet->Sauvegarder(flux);
+	}
+	
+}
 
 
 void Catalogue::importer(string nomFichier,TypeTrajet type)
 {
 	ifstream fluxLecture(nomFichier, ios::in);
-	unsigned int i;
+	
+	string meta;
+	vector<string> splitRes;
+	unsigned int nbTrajetsEnreg;
+	fluxLecture>>nbTrajetsEnreg;
+	
+	if(nbTrajetsEnreg==0) // si aucun trajet n'a été enregistrer, on sort
+		return;
 
-	while(fluxLecture>>i)
+	while(fluxLecture>>meta)
 	{
 		string ligne;
 		string villeD;
 		string villeA;
 		string transport;
 		
-		if(i==1)
+		unsigned int metaNbTrajets;
+		
+		splitRes = split(meta,';');
+		metaNbTrajets=stoi(splitRes[0]);
+		
+		if(metaNbTrajets==1)
 		{
 			if(!(type==TOUS||type==TS))
 			{
@@ -397,21 +469,18 @@ void Catalogue::importer(string nomFichier,TypeTrajet type)
 			else
 			{
 				fluxLecture>>ligne;
-				int pos=ligne.find(';');
-				villeD=ligne.substr(0,pos);
-				ligne.erase(0,pos+1);
-				pos=ligne.find(';');
-				villeA=ligne.substr(0,pos);
-				ligne.erase(0,pos+1);
-				transport=ligne;
-				Ajouter(villeD.c_str(),villeA.c_str(),transport.c_str()); 
+				splitRes = split(ligne,';');
+				villeD = splitRes[0];
+				villeA = splitRes[1];
+				transport = splitRes[2];
+				Ajouter(villeD.c_str(),villeA.c_str(),transport.c_str());
 			}
 		}
 		else
 		{
 			if(!(type==TOUS||type==TC))
 			{
-				for(unsigned int k(0);k<i;k++)
+				for(unsigned int k=0;k<metaNbTrajets;k++)
 				{
 					fluxLecture>>ligne;
 				}
@@ -419,17 +488,14 @@ void Catalogue::importer(string nomFichier,TypeTrajet type)
 			}
 			else
 			{
-				UnTrajetSimple *lesTrajets=new UnTrajetSimple[i];
-				for(unsigned int k(0);k<i;k++)
+				UnTrajetSimple *lesTrajets=new UnTrajetSimple[metaNbTrajets];
+				for(unsigned int k=0;k<metaNbTrajets;k++)
 				{
 					fluxLecture>>ligne;
-					int pos=ligne.find(';');
-					villeD=ligne.substr(0,pos);
-					ligne.erase(0,pos+1);
-					pos=ligne.find(';');
-					villeA=ligne.substr(0,pos);
-					ligne.erase(0,pos+1);
-					transport=ligne;
+					splitRes = split(ligne,';');
+					villeD = splitRes[0];
+					villeA = splitRes[1];
+					transport = splitRes[2];
 					lesTrajets[k].villeDep=new char[villeD.size()];
 					lesTrajets[k].villeArr=new char[villeA.size()];
 					lesTrajets[k].moyenTransport=new char[transport.size()];
@@ -438,8 +504,8 @@ void Catalogue::importer(string nomFichier,TypeTrajet type)
 					strcpy(lesTrajets[k].villeArr,villeA.c_str());
 					strcpy(lesTrajets[k].moyenTransport,transport.c_str());
 				}
-				Ajouter(lesTrajets,i);
-				for (int k(0); k<i; k++)
+				Ajouter(lesTrajets,metaNbTrajets);
+				for (unsigned int k(0); k<metaNbTrajets; k++)
 				{
 					delete[] lesTrajets[k].villeDep;
 					delete[] lesTrajets[k].villeArr;
@@ -452,7 +518,93 @@ void Catalogue::importer(string nomFichier,TypeTrajet type)
 	}
 }
 
-void Catalogue::importer(string nomFichier, string villeA, string villeD);
+void Catalogue::importer(string nomFichier, string villeD, string villeA)
+{
+	fstream fluxLecture(nomFichier, ios::in);
+	string meta;
+	vector<string> splitRes;
+	unsigned int nbTrajetsEnreg;
+	fluxLecture>>nbTrajetsEnreg;
+	
+	if(nbTrajetsEnreg==0) // si aucun trajet n'a été enregistrer, on sort
+		return;
+
+	while(fluxLecture>>meta)
+	{
+		string ligne;
+		string transport;
+		
+		unsigned int metaNbTrajets;
+		string metaVilleDep;
+		string metaVilleArr;
+		
+		splitRes = split(meta,';');
+		metaNbTrajets=stoi(splitRes[0]);
+		metaVilleDep=splitRes[1];
+		metaVilleArr=splitRes[2];
+		
+		
+		if(metaNbTrajets==1)
+		{
+			if((metaVilleArr==villeA && villeD=="") || (metaVilleDep==villeD && villeA=="") || (metaVilleDep==villeD && metaVilleArr==villeA)||(villeA==""&& villeD==""))
+			{
+				fluxLecture>>ligne;
+				splitRes = split(ligne,';');
+				villeD = splitRes[0];
+				villeA = splitRes[1];
+				transport = splitRes[2];
+				Ajouter(villeD.c_str(),villeA.c_str(),transport.c_str());
+			}
+			else
+			{
+				fluxLecture>>ligne;
+			}
+			
+			
+		}
+		else
+		{
+			if((metaVilleArr==villeA && villeD=="") || (metaVilleDep==villeD && villeA=="") || (metaVilleDep==villeD && metaVilleArr==villeA)||(villeA==""&& villeD==""))
+			{
+				UnTrajetSimple *lesTrajets=new UnTrajetSimple[metaNbTrajets];
+				for(unsigned int k=0;k<metaNbTrajets;k++)
+				{
+					fluxLecture>>ligne;
+					splitRes = split(ligne,';');
+					villeD = splitRes[0];
+					villeA = splitRes[1];
+					transport = splitRes[2];
+					lesTrajets[k].villeDep=new char[villeD.size()];
+					lesTrajets[k].villeArr=new char[villeA.size()];
+					lesTrajets[k].moyenTransport=new char[transport.size()];
+					
+					strcpy(lesTrajets[k].villeDep,villeD.c_str());
+					strcpy(lesTrajets[k].villeArr,villeA.c_str());
+					strcpy(lesTrajets[k].moyenTransport,transport.c_str());
+				}
+				Ajouter(lesTrajets,metaNbTrajets);
+				for (unsigned int k(0); k<metaNbTrajets; k++)
+				{
+					delete[] lesTrajets[k].villeDep;
+					delete[] lesTrajets[k].villeArr;
+					delete[] lesTrajets[k].moyenTransport;
+				}
+				delete [] lesTrajets;
+			}
+			
+			else
+			{
+				for(unsigned int k=0;k<metaNbTrajets;k++)
+				{
+					fluxLecture>>ligne;
+				}
+			}				
+			
+		}
+	}
+}
+
+
 
 Catalogue::Catalogue():nbTrajets(0)
 {
@@ -483,4 +635,19 @@ Catalogue::~Catalogue()
   //------------------------------------------------------------------ PRIVE
 
   //----------------------------------------------------- Méthodes protégées
+
+vector<string> Catalogue::split(string param, char delimiteur)
+{
+	size_t pos;
+	string token;
+	vector<string> result;
+	while ((pos = param.find(delimiteur)) != std::string::npos)
+	{
+		token = param.substr(0, pos);
+		result.push_back(token);
+		param.erase(0, pos+1);
+	}
+	result.push_back(param);
+	return result;
+}
 

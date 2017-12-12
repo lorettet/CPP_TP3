@@ -64,7 +64,7 @@ void TrajetCompose::Sauvegarder(ofstream & p, bool infoOnly)
 {
 	 if(!infoOnly)
 	 {
-		p<<nbTrajets<<endl;
+		p<<nbTrajets<<";"<<getVilleDepart()<<";"<<getVilleArrivee()<<endl;
 	 }
 	 for(unsigned int i(0); i<nbTrajets;i++)
 	 {

@@ -16,6 +16,7 @@ e-mail               : theo.lorette-froidevaux@insa-lyon.fr
 #include "TrajetSimple.h"
 #include "TrajetCompose.h"
 #include <string>
+#include <vector>
 //------------------------------------------------------------- Constantes
 
 //------------------------------------------------------------------ Types
@@ -82,8 +83,12 @@ public:
 	//
 
 	//------------------------------------------------------------------ PRIVE
+	private:
+	
+	static vector<string> split(string param, char delimiteur);
 
-	//protected:
+
+	protected:
 	//----------------------------------------------------- Méthodes protégées
 
 	bool Ajouter(const char *villeDep, const char *villeArr, const char *moyenTransport);
@@ -126,11 +131,16 @@ public:
 	// Ne vérifie pas que la ville d'arrivée d'un trajet, correspond à
 	// la ville de départ du prochain trajet.
 	//
-	void EnregistrerCatalogue(TypeTrajet);
+	void EnregistrerCatalogue(string nomFichier, TypeTrajet);
+	
+	void EnregistrerCatalogue(string nomFichier, string villeDep, string villeArr="");
+	
+	void EnregistrerCatalogue(string nomFichier, unsigned int deb, unsigned int fin);
+
 	
 	void importer(string nomFicher, TypeTrajet type = TOUS);
 	
-	void importer(string nomFichier, string villeD, string villeA);
+	void importer(string nomFichier, string villeD, string villeA="");
 	//----------------------------------------------------- Attributs protégés
 	ListeChainee listeTrajets;
 	unsigned int nbTrajets;

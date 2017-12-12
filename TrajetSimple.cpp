@@ -59,7 +59,7 @@ void TrajetSimple::Sauvegarder(ofstream &p, bool infoOnly)
 	
 	if(!infoOnly)
 	{
-		p<<"1"<<endl;
+		p<<"1;"<<villeDepart<<";"<<villeArrivee<<endl;
 	}
 	p<<villeDepart<<";"<<villeArrivee<<";"<<moyenTransport<<endl;
 		
