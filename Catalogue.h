@@ -131,16 +131,18 @@ public:
 	// Ne vérifie pas que la ville d'arrivée d'un trajet, correspond à
 	// la ville de départ du prochain trajet.
 	//
-	void EnregistrerCatalogue(string nomFichier, TypeTrajet);
+	void EnregistrerCatalogue(bool ecraseTest,string nomFichier, TypeTrajet=TOUS );
+
+	void EnregistrerCatalogue(bool ecraseTest, string nomFichier, string villeDep, string villeArr="");
 	
-	void EnregistrerCatalogue(string nomFichier, string villeDep, string villeArr="");
-	
-	void EnregistrerCatalogue(string nomFichier, unsigned int deb, unsigned int fin);
+	void EnregistrerCatalogue(bool ecraseTest, string nomFichier, unsigned int deb, unsigned int fin);
 
 	
 	void importer(string nomFicher, TypeTrajet type = TOUS);
 	
 	void importer(string nomFichier, string villeD, string villeA="");
+
+	void importer(string nomFichier, unsigned int deb, unsigned int fin);
 	//----------------------------------------------------- Attributs protégés
 	ListeChainee listeTrajets;
 	unsigned int nbTrajets;

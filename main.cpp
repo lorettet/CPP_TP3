@@ -2,7 +2,7 @@
 using namespace std;
 #include "Catalogue.h"
 
-int main()
+int main() 
 {
 	Catalogue c;
 	c.Run();
